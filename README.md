@@ -14,3 +14,4 @@
 產出：
 (1)設計並產出這個視覺化互動式的單頁 HTML 遊戲網頁。
 (2)請為我生成這款遊戲的腳本，並提供 Word 文件。
+<img width="883" height="542" alt="eng_list" src="https://github.com/user-attachments/assets/eecff205-2973-4066-bf89-08ca65574be9" />
