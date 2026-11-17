@@ -79,6 +79,7 @@ h1,h2,h3{margin:.2em 0}
 .track{position:relative;height:104px;border-radius:22px;border:3px solid rgba(255,255,255,.7);overflow:hidden;margin-bottom:12px;background:linear-gradient(#bfeaff 0 35%,#8bd35e 35% 100%);box-shadow:var(--shadow)}
 .track.A{background:linear-gradient(#bfeaff 0 35%,#8bd35e 35% 100%)}
 .track.B{background:linear-gradient(#7c9fd0 0 35%,#3f8f4a 35% 100%)}
+.track.D{background:linear-gradient(#2d2a4a 0 35%,#7a5a3a 35% 100%)}
 .track.C{background:linear-gradient(#4b3a6b 0 35%,#4a7d8e 35% 100%)}
 .track .onion{position:absolute;right:6px;bottom:6px;width:92px}
 .track .onion.slurp{animation:slurp .45s}
@@ -152,7 +153,7 @@ input[type=text]{font:inherit;padding:10px 14px;border-radius:14px;border:3px so
 
 <script>
 /* ============ 單字資料 (en, 詞性, 中文, 例句, 例句中譯, 記憶小撇步) ============ */
-const W=[
+const W_EN=[
 ["progress","n./v.","進步；進展","Students make steady progress when they review every day.","學生每天複習就會穩定進步。","pro(向前)+gress(走) → 往前走 = 進步"],
 ["preservation","n.","保存；保護","The preservation of old temples needs money and care.","古老寺廟的保存需要金錢與用心。","preserve(保存)+ation；果醬 jam 就是保存水果的方法"],
 ["glimpse","n./v.","一瞥；瞥見","I caught a glimpse of a rare bird in the forest.","我在森林裡瞥見一隻稀有的鳥。","和 glance(看一眼) 長得像，都是「快速看一下」"],
@@ -177,13 +178,54 @@ const W=[
 ["enormous","adj.","巨大的","An enormous tree stood in the middle of the field.","一棵巨大的樹矗立在田野中央。","e(出)+norm(標準) → 超出標準 = 巨大"],
 ["mission","n.","任務；使命","Their mission is to clean up the river.","他們的任務是清理這條河。","miss/mit = 送出去 → 被派出去的事 = 任務；missionary 傳教士"],
 ["fond","adj.","喜愛的","My grandfather is fond of growing flowers.","我的爺爺喜歡種花。","固定用法 be fond of + N/V-ing，意思近似 like"]
-].map((a,i)=>({id:i,en:a[0],pos:a[1],zh:a[2],s:a[3],sz:a[4],tip:a[5]}));
+].map((a,i)=>({id:i,en:a[0],pos:a[1],zh:a[2],s:a[3],sz:a[4],tip:a[5],art:a[6],f:a[7]}));
+/* 德文單字：取自字幕「Lilly 失蹤記」(p02、p03)。欄位：單字, 詞性, 中文, 例句(字幕原句), 中譯, 記憶撇步, 冠詞, 句中出現的形式 */
+const W_DE=[
+["Küche","n.","廚房","Ich schaue in der Küche nach.","我到廚房找找看。","和英文 kitchen、cook 同源；陰性名詞","die","Küche"],
+["Wohnzimmer","n.","客廳","Sie ist auch nicht im Wohnzimmer.","她也不在客廳。","wohnen(居住)＋Zimmer(房間) = 客廳","das","Wohnzimmer"],
+["Zimmer","n.","房間","Ich habe gesagt, geh raus aus meinem Zimmer!","我說過了，從我的房間出去！","Wohn-/Schlaf-/Kinderzimmer 都用它組合；中性","das","Zimmer"],
+["Garten","n.","花園","Opa, vielleicht ist sie im Garten?","爺爺，她會不會在花園裡？","幾乎等於英文 garden；Kindergarten 就是「小孩的花園」","der","Garten"],
+["Straße","n.","街道；馬路","Auf der Straße ist sie auch nicht.","她也不在街上。","像英文 street；ß 唸 ss","die","Straße"],
+["Keller","n.","地下室","Habt ihr schon im Keller nachgesehen?","你們已經檢查過地下室了嗎？","同源於英文 cellar","der","Keller"],
+["Haus","n.","房子；家","Da ist unser Haus, endlich!","我們的家到了，終於！","像英文 house；nach Hause = 回家","das","Haus"],
+["Katze","n.","貓","Hier ist nur die Katze, Oma.","這裡只有貓咪，奶奶。","像英文 cat；Katze 唸「卡策」","die","Katze"],
+["suchen","v.","尋找","Ganz ruhig, wir suchen sie zusammen.","別慌，我們一起找她。","ich suche, du suchst, wir suchen；像英文 seek","","suchen"],
+["finden","v.","找到；覺得","Wir finden sie, das verspreche ich dir.","我們會找到她，我向你保證。","就是英文 find；過去分詞 gefunden","","finden"],
+["spielen","v.","玩；遊玩","Sie wollte mit mir spielen.","她想要跟我玩。","Spiel = play/game；mit jemandem spielen 和某人玩","","spielen"],
+["fragen","v.","詢問","Wir müssen die Nachbarn fragen.","我們得去問問鄰居。","fragen = ask；Frage 是「問題」","","fragen"],
+["sehen","v.","看見","Niemand hat sie gesehen, Opa.","沒有人看見她，爺爺。","sehen = see；完成式 hat gesehen（句中為過去分詞）","","gesehen"],
+["helfen","v.","幫助","Die Polizei hilft uns bestimmt, Leo.","警察一定會幫我們的，Leo。","helfen = help；不規則變化 er/sie hilft (e→i)","","hilft"],
+["sagen","v.","說","Und ich habe gesagt, nicht jetzt.","而我說了：現在不行。","sagen = say；完成式 hat gesagt（句中為過去分詞）","","gesagt"],
+["lesen","v.","閱讀","Du hast hier ganz allein gelesen.","你一個人在這裡看書。","lesen = read；完成式 hat gelesen（句中為過去分詞）","","gelesen"],
+["Angst","n.","恐懼；害怕","Oma, ich habe solche Angst.","奶奶，我好害怕。","英文也借用 angst 這個字；Angst haben = 感到害怕","die","Angst"],
+["Hilfe","n.","幫助；救援","Guten Abend, wir brauchen dringend Hilfe.","晚安，我們急需協助。","helfen 的名詞；Hilfe! 就是「救命！」","die","Hilfe"],
+["Polizei","n.","警察；警局","Wir müssen jetzt zur Polizei gehen.","我們現在得去警察局。","像英文 police；zur = zu＋der","die","Polizei"],
+["Enkelin","n.","孫女；外孫女","Unsere Enkelin ist verschwunden.","我們的孫女失蹤了。","Enkel(孫子)＋-in(女性字尾)","die","Enkelin"],
+["Großvater","n.","祖父；外公","Zuerst rede ich mit dem Großvater.","我先跟爺爺說話。","groß(大)＋Vater(父親)；口語叫 Opa","der","Großvater"],
+["Großmutter","n.","祖母；外婆","Jetzt spreche ich mit der Großmutter.","現在我跟奶奶說話。","groß(大)＋Mutter(母親)；口語叫 Oma","die","Großmutter"],
+["Bruder","n.","兄弟；哥哥","Du bist ihr großer Bruder, richtig?","你是她的哥哥，對嗎？","像英文 brother；großer Bruder = 哥哥","der","Bruder"],
+["Buch","n.","書","Ihr Buch ist heute nicht in ihrem Zimmer.","她的書今天不在她的房間裡。","像英文 book","das","Buch"],
+["ruhig","adj.","安靜的；平靜的","Hier unten ist es eigentlich schön ruhig.","其實這下面還滿安靜的。","來自 die Ruhe(寧靜)；Ganz ruhig! = 冷靜點","","ruhig"],
+["wichtig","adj.","重要的","Du bist uns sehr, sehr wichtig, Lilly.","Lilly，你對我們非常非常重要。","Das ist wichtig! = 這很重要","","wichtig"],
+["dunkel","adj.","黑暗的；昏暗的","Es wird langsam dunkel, Rose.","天漸漸黑了，Rose。","像英文 dark；Es wird dunkel = 天黑了","","dunkel"],
+["schnell","adj.","快速的","Bitte, lass uns schnell machen, Oma.","拜託，我們快一點，奶奶。","schnell 唸「什內爾」，形容詞與副詞同形","","schnell"],
+["einsam","adj.","孤單的","Es war ruhig, aber ein bisschen einsam.","很安靜，但有一點孤單。","ein(一)＋-sam(像 -some) = 一個人的 = 孤單","","einsam"],
+["gemein","adj.","壞心的；刻薄的","Ich war heute so gemein zu ihr.","我今天對她太壞了。","與英文 common 同源；這裡指「壞心、卑鄙」","","gemein"],
+["leid","adj.","抱歉的（固定用法）","Es tut mir leid, dass ich keine Zeit hatte.","很抱歉我沒有時間。","固定句 Es tut mir leid = 對不起","","leid"],
+["Zeit","n.","時間","Ab jetzt haben wir immer Zeit für dich.","從現在起，我們隨時都有時間陪你。","像英文 time；Ich habe keine Zeit = 我沒時間","die","Zeit"]
+].map((a,i)=>({id:i,en:a[0],pos:a[1],zh:a[2],s:a[3],sz:a[4],tip:a[5],art:a[6],f:a[7]}));
 
 const COLS=["#ec4a3f","#f6c431","#3d7fe0","#9a4fc2","#f4f4ee","#8d949e","#ff8fb5"];
-const AREAS=[
+const AREAS_EN=[
  {id:"A",name:"晨露草原",emoji:"🌼",r:[0,8],story:"隊長發現草原上散落著神祕花蜜！幫小芽芽認識單字，把花蜜搬回洋蔥。"},
  {id:"B",name:"幽影森林",emoji:"🌲",r:[8,16],story:"森林裡的橋斷了、路被藤蔓擋住。用正確的單字與句子，帶領小芽芽前進！"},
  {id:"C",name:"水晶洞窟",emoji:"💎",r:[16,24],story:"洞窟深處藏著發光寶藏，但只有會用單字造句的探險家才能打開寶箱。"}
+];
+const AREAS_DE=[
+ {id:"A",name:"家中尋人",emoji:"🏠",r:[0,8],story:"Lilly 不見了！奶奶、爺爺和 Ben 先在家裡各個角落找找看。學會地點單字，一起展開搜索吧。"},
+ {id:"B",name:"搜索行動",emoji:"🔍",r:[8,16],story:"搜索範圍擴大到花園和街上！學會「找、問、看、說」的動詞，向鄰居打聽消息。"},
+ {id:"C",name:"警察局",emoji:"👮",r:[16,24],story:"天黑了，大家到警察局求助。認識家人與求助相關的單字，回答警察 Klaus 的提問。"},
+ {id:"D",name:"地下室的光",emoji:"🔦",r:[24,32],story:"線索指向地下室！用形容詞與關鍵句說出安靜、重要與抱歉的心情，迎接 Lilly 回家。"}
 ];
 const TYPES={
  learn:{n:"單字教學",ico:"📖",scn:"隊長講解：認識單字、發音與例句"},
@@ -191,21 +233,32 @@ const TYPES={
  listen:{n:"洞窟回音",ico:"🎧",scn:"聽發音，選出你聽到的單字！"},
  cloze:{n:"修補橋樑",ico:"🌉",scn:"句子缺了一塊，補上正確單字才能過橋！"},
  spell:{n:"寶箱密碼",ico:"🔑",scn:"看中文、聽發音，拼出單字打開寶箱！"},
- final:{n:"洋蔥母艦總測驗",ico:"🛸",scn:"全部 24 個單字的綜合挑戰，通過就能升級母艦！"},
+ final:{n:"洋蔥母艦總測驗",ico:"🛸",scn:"全部單字的綜合挑戰（隨機 24 題），通過就能升級母艦！"},
  review:{n:"弱點複習",ico:"🩹",scn:"針對你最容易錯的單字特訓！"}
 };
 const TNAME={meaning:"字義選擇",listen:"聽音辨字",cloze:"句子填空",spell:"拼字"};
-const LEVELS=[];
-AREAS.forEach(a=>["learn","meaning","listen","cloze","spell"].forEach(t=>LEVELS.push({id:a.id+"-"+t,area:a,type:t,words:range(a.r[0],a.r[1])})));
-LEVELS.push({id:"final",area:AREAS[2],type:"final",words:range(0,24)});
+let LEVELS=[];
+function buildLevels(){LEVELS=[];AREAS.forEach(a=>["learn","meaning","listen","cloze","spell"].forEach(t=>LEVELS.push({id:a.id+"-"+t,area:a,type:t,words:range(a.r[0],a.r[1])})));
+LEVELS.push({id:"final",area:AREAS[AREAS.length-1],type:"final",words:range(0,W.length)})}
 function range(a,b){const r=[];for(let i=a;i<b;i++)r.push(i);return r}
 
 /* ============ 儲存 ============ */
-const KEY="pikmin_vocab_v1";
-let S;
-try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){}
-S=Object.assign({name:"",words:{},types:{},levels:{},log:[],days:[],pellets:0,slow:false,mute:false,teacher:false},S||{});
-function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+let LANG="en",W=W_EN,AREAS=AREAS_EN,KEY="pikmin_vocab_v1",S;
+try{LANG=localStorage.getItem("pikmin_lang")==="de"?"de":"en"}catch(e){}
+function setLang(l,go){
+ LANG=l;try{localStorage.setItem("pikmin_lang",l)}catch(e){}
+ const prev=S&&S.name;
+ W=l==="de"?W_DE:W_EN;AREAS=l==="de"?AREAS_DE:AREAS_EN;KEY=l==="de"?"pikmin_vocab_de_v1":"pikmin_vocab_v1";
+ S=null;try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){}
+ S=Object.assign({name:"",words:{},types:{},levels:{},log:[],days:[],pellets:0,slow:false,mute:false,teacher:false},S||{});
+ if(!S.name){S.name=prev||"";if(!S.name)try{const o=JSON.parse(localStorage.getItem(l==="de"?"pikmin_vocab_v1":"pikmin_vocab_de_v1"));if(o&&o.name)S.name=o.name}catch(e){}}
+ buildLevels();if("speechSynthesis" in window)pickVoice();
+ if(go)home();
+}
+const dsp=w=>w.art?w.art+" "+w.en:w.en;
+const frm=w=>w.f||w.en;
+const wre=w=>new RegExp("(?<![\\p{L}])"+frm(w)+"(?![\\p{L}])","iu");
+const langBar=()=>`<div class="row" style="justify-content:center;margin:10px 0"><button class="btn ${LANG==="en"?"sun":"ghost"} sm" onclick="setLang('en',1)">英文 English（${W_EN.length} 字）</button><button class="btn ${LANG==="de"?"sun":"ghost"} sm" onclick="setLang('de',1)">德文 Deutsch（${W_DE.length} 字）</button></div>`;function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
 const $=(s,e=document)=>e.querySelector(s);
 const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
 const esc=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;");
@@ -215,12 +268,12 @@ const STN=["未遇見","嫩葉","花苞","開花"];
 
 /* ============ 語音與音效 ============ */
 let voice=null;
-function pickVoice(){const v=speechSynthesis.getVoices();voice=v.find(x=>/en-US/i.test(x.lang)&&/Google|Natural|Aria|Jenny|Samantha|Zira/i.test(x.name))||v.find(x=>/en-US/i.test(x.lang))||v.find(x=>/^en/i.test(x.lang))||null}
-if("speechSynthesis" in window){pickVoice();speechSynthesis.onvoiceschanged=pickVoice}
+function pickVoice(){const v=speechSynthesis.getVoices(),re=new RegExp("^"+(LANG==="de"?"de":"en"),"i");voice=v.find(x=>re.test(x.lang)&&/Google|Natural|Katja|Amala|Conrad|Aria|Jenny|Samantha|Zira/i.test(x.name))||v.find(x=>re.test(x.lang))||null}
+if("speechSynthesis" in window){speechSynthesis.onvoiceschanged=pickVoice}
 function speak(t,slow){
   if(!("speechSynthesis" in window))return;
   speechSynthesis.cancel();
-  const u=new SpeechSynthesisUtterance(t);u.lang="en-US";if(voice)u.voice=voice;
+  const u=new SpeechSynthesisUtterance(t);u.lang=LANG==="de"?"de-DE":"en-US";if(voice)u.voice=voice;
   u.rate=(slow||S.slow)?0.6:0.92;speechSynthesis.speak(u);
 }
 let actx;
@@ -268,12 +321,12 @@ function home(){
   speechSynthesis&&speechSynthesis.cancel&&speechSynthesis.cancel();
   const tot=W.reduce((a,w)=>a+(wst(w.id)===3?1:0),0);
   view(`<div class="hero">
-   <div class="logo">芽芽探險隊</div><div><span class="sub">高一單字大冒險 ・ 24 個關鍵單字</span></div>
-   <div class="parade">${[0,1,2,3,4,5,6].map(i=>`<div class="bob" style="animation-delay:${i*.15}s">${pik(i,[3,2,1,3,2,1,3][i],{size:60})}</div>`).join("")}</div>
+   <div class="logo">芽芽探險隊</div><div><span class="sub">${LANG==="de"?"德語單字：Lilly 失蹤記 ・ "+W.length+" 個生活單字":"高一單字大冒險 ・ "+W.length+" 個關鍵單字"}</span></div>
+   ${langBar()}<div class="parade">${[0,1,2,3,4,5,6].map(i=>`<div class="bob" style="animation-delay:${i*.15}s">${pik(i,[3,2,1,3,2,1,3][i],{size:60})}</div>`).join("")}</div>
    <div class="card" style="max-width:480px;margin:auto">
      <div class="row" style="justify-content:center"><b>${S.name?esc(S.name)+" 隊員，歡迎回來！":"請輸入你的探險隊員名字"}</b></div>
      ${S.name?"":`<div class="row" style="margin-top:8px"><input type="text" id="nm" maxlength="12" placeholder="例如：小明"><button class="btn sun" onclick="setName()">出發</button></div>`}
-     <p class="note center">已開花的單字：${tot} / 24 　・　花蜜收穫：${S.pellets} 顆</p>
+     <p class="note center">已開花的單字：${tot} / ${W.length} 　・　花蜜收穫：${S.pellets} 顆</p>
    </div>
    <div class="menu">
      <button class="btn" onclick="map()">🗺️ 冒險地圖（教學 → 練習 → 測驗）</button>
@@ -298,19 +351,19 @@ function map(){
 }
 function lvTile(l,k){
   const ok=unlocked(k),r=S.levels[l.id]||{},T=TYPES[l.type];
-  return `<div class="lv ${ok?"":"lock"}" onclick="${ok?`startLevel(${k})`:""}"><div class="ico">${ok?T.ico:"🔒"}</div>${T.n}<small>${l.type==="final"?"24 題":l.type==="learn"?"8 個單字":"8 題"}</small>${stars(r.stars||0)}</div>`;
+  return `<div class="lv ${ok?"":"lock"}" onclick="${ok?`startLevel(${k})`:""}"><div class="ico">${ok?T.ico:"🔒"}</div>${T.n}<small>${l.type==="final"?Math.min(24,W.length)+" 題":l.type==="learn"?"8 個單字":"8 題"}</small>${stars(r.stars||0)}</div>`;
 }
 
 /* ============ 教學 / 圖鑑 ============ */
-function hl(s,w){return s.replace(new RegExp("\\b("+w+")\\b","i"),"<b>$1</b>")}
+function hl(s,w){return s.replace(wre(w),m=>"<b>"+m+"</b>")}
 function cardHTML(i){const w=W[i];
   return `<div class="lcard"><div class="center">
     <div class="bob" style="display:inline-block">${pik(i,Math.max(1,wst(i)),{size:84})}</div>
-    <div class="bigword">${w.en}</div>
+    <div class="bigword">${dsp(w)}</div>
     <span class="pos">${w.pos}</span> <b style="font-size:1.4rem">${w.zh}</b>
-    <div class="row" style="justify-content:center;margin-top:10px"><button class="spk" data-say="${w.en}" title="發音">🔊</button><button class="spk" style="background:#8a8" data-say="${w.en}" data-slow="1" title="慢速">🐢</button></div></div>
+    <div class="row" style="justify-content:center;margin-top:10px"><button class="spk" data-say="${dsp(w)}" title="發音">🔊</button><button class="spk" style="background:#8a8" data-say="${dsp(w)}" data-slow="1" title="慢速">🐢</button></div></div>
    <div><div class="tip">🧠 記憶小撇步：${w.tip}</div>
-    <div class="exs"><div class="sent" style="margin:0">${hl(w.s,w.en)}</div><div class="note" style="font-size:1rem;margin:6px 0">${w.sz}</div>
+    <div class="exs"><div class="sent" style="margin:0">${hl(w.s,w)}</div><div class="note" style="font-size:1rem;margin:6px 0">${w.sz}</div>
     <button class="btn blue sm" data-say="${esc(w.s)}">🔊 念句子</button> <button class="btn ghost sm" data-say="${esc(w.s)}" data-slow="1">🐢 慢速</button></div></div></div>`;
 }
 let learnRun=null;
@@ -324,7 +377,7 @@ function renderLearn(){
    <div class="row" style="justify-content:space-between;margin-top:14px">
     <button class="btn ghost" ${idx?"":"disabled"} onclick="learnGo(-1)">◀ 上一個</button>
     <button class="btn sun" onclick="learnGo(1)">${idx===l.words.length-1?"完成教學 ✔":"下一個 ▶"}</button></div>`);
-  setTimeout(()=>speak(W[i].en),250);
+  setTimeout(()=>speak(dsp(W[i])),250);
 }
 function learnGo(d){
   const r=learnRun;
@@ -338,13 +391,13 @@ function learnGo(d){
 }
 function dict(){
   let h=`<div class="topbar"><button class="btn ghost sm" onclick="home()">← 首頁</button><div class="title">📚 單字圖鑑</div></div><div class="note" style="margin-bottom:8px">點任何一張卡片查看中文、例句與發音。</div><div class="wgrid">`;
-  W.forEach(w=>h+=`<div class="wc" onclick="openCard(${w.id})">${pik(w.id,wst(w.id),{size:44})}${w.id+1}. ${w.en}<small>${w.zh}</small></div>`);
+  W.forEach(w=>h+=`<div class="wc" onclick="openCard(${w.id})">${pik(w.id,wst(w.id),{size:44})}${w.id+1}. ${dsp(w)}<small>${w.zh}</small></div>`);
   view(h+"</div>");
 }
 function openCard(i){
   const m=document.createElement("div");m.className="modal";m.onclick=e=>{if(e.target===m)m.remove()};
   m.innerHTML=`<div class="card"><div class="row" style="justify-content:space-between"><b>No.${i+1}</b><button class="btn ghost sm" onclick="this.closest('.modal').remove()">✕ 關閉</button></div>${cardHTML(i)}</div>`;
-  document.body.appendChild(m);speak(W[i].en);
+  document.body.appendChild(m);speak(dsp(W[i]));
 }
 
 /* ============ 測驗引擎 ============ */
@@ -353,7 +406,7 @@ function startLevel(k){
   const l=LEVELS[k];if(!l)return map();
   if(l.type==="learn")return startLearn(k);
   let qs;
-  if(l.type==="final")qs=shuffle(l.words).map(i=>({type:shuffle(["meaning","listen","cloze","spell"])[0],i}));
+  if(l.type==="final")qs=shuffle(l.words).slice(0,24).map(i=>({type:shuffle(["meaning","listen","cloze","spell"])[0],i}));
   else qs=shuffle(l.words).map(i=>({type:l.type,i}));
   begin({k,l,id:l.id,type:l.type,area:l.area,qs});
 }
@@ -371,23 +424,23 @@ function question(){
   run.locked=false;run.hint=0;
   let body="";
   if(q.type==="meaning"){q.o=opts(q.i);
-    body=`<div class="bigword">${w.en}</div><div class="row" style="justify-content:center"><button class="spk" data-say="${w.en}">🔊</button></div><p class="note">這個單字是什麼意思？</p><div class="opts">${q.o.map(o=>`<button class="opt" onclick="pickOpt(${o})" data-o="${o}">${W[o].pos} ${W[o].zh}</button>`).join("")}</div>`}
+    body=`<div class="bigword">${dsp(w)}</div><div class="row" style="justify-content:center"><button class="spk" data-say="${dsp(w)}">🔊</button></div><p class="note">這個單字是什麼意思？</p><div class="opts">${q.o.map(o=>`<button class="opt" onclick="pickOpt(${o})" data-o="${o}">${W[o].pos} ${W[o].zh}</button>`).join("")}</div>`}
   if(q.type==="listen"){q.o=opts(q.i);
-    body=`<div class="row" style="justify-content:center;margin:10px 0"><button class="spk" style="width:84px;height:84px;font-size:2.4rem" data-say="${w.en}">🔊</button><button class="spk" style="background:#8a8" data-say="${w.en}" data-slow="1">🐢</button></div><p class="note">按喇叭聽發音，選出你聽到的單字</p><div class="opts">${q.o.map(o=>`<button class="opt" onclick="pickOpt(${o})" data-o="${o}">${W[o].en}</button>`).join("")}</div>`}
+    body=`<div class="row" style="justify-content:center;margin:10px 0"><button class="spk" style="width:84px;height:84px;font-size:2.4rem" data-say="${dsp(w)}">🔊</button><button class="spk" style="background:#8a8" data-say="${dsp(w)}" data-slow="1">🐢</button></div><p class="note">按喇叭聽發音，選出你聽到的單字</p><div class="opts">${q.o.map(o=>`<button class="opt" onclick="pickOpt(${o})" data-o="${o}">${dsp(W[o])}</button>`).join("")}</div>`}
   if(q.type==="cloze"){q.o=opts(q.i);
-    const s=w.s.replace(new RegExp("\\b"+w.en+"\\b","i"),'<span class="blank">　　</span>');
-    body=`<div class="sent">${s}</div><div class="note">${w.sz}</div><p class="note">選出最適合填入空格的單字</p><div class="opts">${q.o.map(o=>`<button class="opt" onclick="pickOpt(${o})" data-o="${o}">${W[o].en}</button>`).join("")}</div>`}
+    const s=w.s.replace(wre(w),'<span class="blank">　　</span>');
+    body=`<div class="sent">${s}</div><div class="note">${w.sz}</div><p class="note">選出最適合填入空格的單字</p><div class="opts">${q.o.map(o=>`<button class="opt" onclick="pickOpt(${o})" data-o="${o}">${frm(W[o])}</button>`).join("")}</div>`}
   if(q.type==="spell"){
     run.tiles=shuffle([...w.en]).map(c=>({c,u:false}));run.fill=[];
-    body=`<div class="row" style="justify-content:center"><button class="spk" data-say="${w.en}">🔊</button><b style="font-size:1.6rem">${w.pos} ${w.zh}</b></div><div class="slots" id="slots"></div><div class="tiles" id="tiles"></div>
+    body=`<div class="row" style="justify-content:center"><button class="spk" data-say="${dsp(w)}">🔊</button><b style="font-size:1.6rem">${w.art?`<span class="pos">${w.art}</span> `:""}${w.pos} ${w.zh}</b></div><div class="slots" id="slots"></div><div class="tiles" id="tiles"></div>
       <div class="row" style="justify-content:center;margin-top:14px"><button class="btn ghost sm" onclick="spUndo()">⌫ 退回</button><button class="btn ghost sm" onclick="spHint()">💡 提示</button></div><div class="note" id="hint"></div>`}
   view(`<div class="topbar"><button class="btn ghost sm" onclick="if(confirm('離開本關？目前進度不會儲存'))map()">← 離開</button><div class="title">${T.ico} ${T.n}</div><span class="chip">${run.idx+1} / ${total}</span></div>
    <div class="prog"><i style="width:${run.idx/total*100}%"></i></div>
-   <div class="track ${run.area.id}" id="track">${onionSvg(["#ff7b54","#7a63d6","#43b8d8"]["ABC".indexOf(run.area.id)])}<div class="count">🍯 <span id="cnt">${run.delivered}</span></div><div class="idle bob">${pik(q.i,Math.max(1,wst(q.i)),{size:50})}</div></div>
+   <div class="track ${run.area.id}" id="track">${onionSvg(["#ff7b54","#7a63d6","#43b8d8","#e0a030"]["ABCD".indexOf(run.area.id)])}<div class="count">🍯 <span id="cnt">${run.delivered}</span></div><div class="idle bob">${pik(q.i,Math.max(1,wst(q.i)),{size:50})}</div></div>
    <div class="card qbox"><div class="scn">📜 ${TYPES[q.type==="spell"||q.type==="listen"||q.type==="cloze"||q.type==="meaning"?q.type:"meaning"].scn}</div>${body}
     <div class="fb" id="fb"></div><div id="nextbox" style="margin-top:12px"></div></div>`);
   if(q.type==="spell")spRender();
-  if(q.type==="listen")setTimeout(()=>speak(w.en),300);
+  if(q.type==="listen")setTimeout(()=>speak(dsp(w)),300);
 }
 function spRender(){
   const w=W[run.qs[run.idx].i];
@@ -415,9 +468,9 @@ function answer(ok,chosen){
   (run.types[q.type]=run.types[q.type]||{c:0,t:0}).t++;if(ok)run.types[q.type].c++;
   save();
   const fb=$("#fb");fb.className="fb show "+(ok?"good":"bad");
-  fb.innerHTML=`<b>${ok?"✅ 答對了！":"❌ 再接再厲！正確答案："+w.en}</b><div style="margin:6px 0"><b>${w.en}</b> <span class="pos">${w.pos}</span> ${w.zh}</div><div class="sent" style="font-size:1.1rem;margin:4px 0">${hl(w.s,w.en)}</div><div class="note" style="font-size:.95rem">${w.sz}</div><button class="btn blue sm" data-say="${esc(w.s)}">🔊 念句子</button>`;
-  if(ok&&q.type!=="cloze")setTimeout(()=>speak(w.en),200);
-  if(!ok||q.type==="cloze")setTimeout(()=>speak(q.type==="cloze"?w.s:w.en),350);
+  fb.innerHTML=`<b>${ok?"✅ 答對了！":"❌ 再接再厲！正確答案："+dsp(w)}</b><div style="margin:6px 0"><b>${dsp(w)}</b> <span class="pos">${w.pos}</span> ${w.zh}</div><div class="sent" style="font-size:1.1rem;margin:4px 0">${hl(w.s,w)}</div><div class="note" style="font-size:.95rem">${w.sz}</div><button class="btn blue sm" data-say="${esc(w.s)}">🔊 念句子</button>`;
+  if(ok&&q.type!=="cloze")setTimeout(()=>speak(dsp(w)),200);
+  if(!ok||q.type==="cloze")setTimeout(()=>speak(q.type==="cloze"?w.s:dsp(w)),350);
   $("#nextbox").innerHTML=`<button class="btn sun" onclick="nextQ()">${run.idx===run.qs.length-1?"看成績 🏁":"下一題 ▶"}</button>`;
 }
 function deliver(){
@@ -451,7 +504,7 @@ function dash(){
   const A=W.reduce((a,w)=>{const s=S.words[w.id];if(s){a.c+=s.c;a.w+=s.w}return a},{c:0,w:0});
   const ans=A.c+A.w,acc=ans?Math.round(A.c/ans*100):0;
   const stc=[0,0,0,0];W.forEach(w=>stc[wst(w.id)]++);
-  const mastery=Math.round(W.reduce((a,w)=>a+[0,.33,.66,1][wst(w.id)],0)/24*100);
+  const mastery=Math.round(W.reduce((a,w)=>a+[0,.33,.66,1][wst(w.id)],0)/W.length*100);
   const totStars=LEVELS.reduce((a,l)=>a+((S.levels[l.id]||{}).stars||0),0);
   const mins=Math.round(S.log.reduce((a,l)=>a+l.sec,0)/60);
   const recent=S.log.filter(l=>l.type!=="learn").slice(-12);
@@ -464,10 +517,10 @@ function dash(){
   const weak=W.filter(w=>S.words[w.id]&&S.words[w.id].w>0).sort((a,b)=>{const x=S.words[a.id],y=S.words[b.id];return (y.w/(y.c+y.w))-(x.w/(x.c+x.w))}).slice(0,6);
   const levelsRows=LEVELS.map(l=>{const r=S.levels[l.id];return r?`<tr><td>${l.area.emoji} ${TYPES[l.type].n}${l.type==="final"?"":"（"+l.area.name+"）"}</td><td>${stars(r.stars)}</td><td>${r.best}%</td><td>${r.attempts}</td></tr>`:""}).join("");
   const logRows=S.log.slice(-8).reverse().map(l=>{const d=new Date(l.ts);return `<tr><td>${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}</td><td>${TYPES[l.type]?TYPES[l.type].n:l.type}</td><td>${l.c}/${l.t}</td><td>${l.sec}s</td></tr>`}).join("");
-  view(`<div class="topbar"><button class="btn ghost sm" onclick="home()">← 首頁</button><div class="title">🌱 ${S.name?esc(S.name)+" 的":""}學習儀表板</div></div>
+  view(`<div class="topbar"><button class="btn ghost sm" onclick="home()">← 首頁</button><div class="title">🌱 ${S.name?esc(S.name)+" 的":""}學習儀表板（${LANG==="de"?"德文":"英文"}）</div></div>${langBar()}
   <div class="kpis">
    <div class="kpi"><b>${mastery}%</b><span>單字精熟度</span></div>
-   <div class="kpi"><b>${stc[3]}/24</b><span>已開花單字</span></div>
+   <div class="kpi"><b>${stc[3]}/${W.length}</b><span>已開花單字</span></div>
    <div class="kpi"><b>${acc}%</b><span>累計正確率 (${ans}題)</span></div>
    <div class="kpi"><b>${totStars}/${LEVELS.length*3}</b><span>獲得星星</span></div>
    <div class="kpi"><b>${streak()}</b><span>連續學習天數</span></div>
@@ -475,11 +528,11 @@ function dash(){
    <div class="kpi"><b>${S.pellets}</b><span>花蜜收穫</span></div></div>
   <div class="card" style="margin-bottom:14px"><h3>🪴 單字花園（點擊單字可複習）</h3>
    <div class="note">未遇見 ${stc[0]} ・ 嫩葉 ${stc[1]} ・ 花苞 ${stc[2]} ・ 開花 ${stc[3]}　— 答對越多，小芽芽頭上的植物就長越大。</div>
-   <div class="wgrid" style="margin-top:10px">${W.map(w=>{const s=S.words[w.id]||{c:0,w:0,m:0};return `<div class="wc" onclick="openCard(${w.id})">${pik(w.id,wst(w.id),{size:40})}${w.en}<small>✔${s.c} ✘${s.w}</small><div class="meter"><i style="width:${s.m/8*100}%"></i></div></div>`}).join("")}</div></div>
+   <div class="wgrid" style="margin-top:10px">${W.map(w=>{const s=S.words[w.id]||{c:0,w:0,m:0};return `<div class="wc" onclick="openCard(${w.id})">${pik(w.id,wst(w.id),{size:40})}${dsp(w)}<small>✔${s.c} ✘${s.w}</small><div class="meter"><i style="width:${s.m/8*100}%"></i></div></div>`}).join("")}</div></div>
   <div class="grid2">
    <div class="card"><h3>📈 最近測驗正確率 (%)</h3>${recent.length?`<svg viewBox="0 0 ${Math.max(340,40+recent.length*(bw+6))} 140" width="100%"><line x1="10" y1="130" x2="100%" y2="130" stroke="#ccc"/>${chart}</svg>`:'<p class="note">完成第一個練習關卡後，這裡會出現你的成績曲線。</p>'}</div>
    <div class="card"><h3>🎯 各題型正確率</h3>${types}</div>
-   <div class="card"><h3>⚠️ 需要加強的單字</h3>${weak.length?weak.map(w=>{const s=S.words[w.id];return `<div class="bar"><span class="lab">${w.en}</span><span class="tr"><i style="width:${Math.round(s.c/(s.c+s.w)*100)}%;background:#ffc83d"></i></span><b>${s.c}/${s.c+s.w}</b></div>`}).join("")+`<button class="btn red sm" onclick="startReview()">🩹 開始弱點複習</button>`:'<p class="note">目前沒有錯誤紀錄，繼續保持！</p><button class="btn red sm" onclick="startReview()">🩹 隨機弱點複習</button>'}</div>
+   <div class="card"><h3>⚠️ 需要加強的單字</h3>${weak.length?weak.map(w=>{const s=S.words[w.id];return `<div class="bar"><span class="lab">${dsp(w)}</span><span class="tr"><i style="width:${Math.round(s.c/(s.c+s.w)*100)}%;background:#ffc83d"></i></span><b>${s.c}/${s.c+s.w}</b></div>`}).join("")+`<button class="btn red sm" onclick="startReview()">🩹 開始弱點複習</button>`:'<p class="note">目前沒有錯誤紀錄，繼續保持！</p><button class="btn red sm" onclick="startReview()">🩹 隨機弱點複習</button>'}</div>
    <div class="card"><h3>🗺️ 關卡成績</h3>${levelsRows?`<table><tr><th>關卡</th><th>星等</th><th>最佳</th><th>次數</th></tr>${levelsRows}</table>`:'<p class="note">尚未完成任何關卡。</p>'}</div>
    <div class="card"><h3>🕒 學習歷程</h3>${logRows?`<table><tr><th>時間</th><th>活動</th><th>成績</th><th>用時</th></tr>${logRows}</table>`:'<p class="note">尚無紀錄。</p>'}</div>
   </div>`);
@@ -489,11 +542,12 @@ function settings(){
   <div class="card"><div class="row"><label><input type="checkbox" ${S.slow?"checked":""} onchange="S.slow=this.checked;save()"> 預設慢速發音</label></div>
   <div class="row" style="margin-top:8px"><label><input type="checkbox" ${S.mute?"checked":""} onchange="S.mute=this.checked;save()"> 關閉音效</label></div>
   <div class="row" style="margin-top:8px"><label><input type="checkbox" ${S.teacher?"checked":""} onchange="S.teacher=this.checked;save()"> 老師模式（解鎖全部關卡）</label></div>
-  <div class="row" style="margin-top:12px"><button class="btn blue sm" onclick="speak('Hello! Let us explore the meadow together.')">🔊 測試發音</button><button class="btn ghost sm" onclick="exportData()">⬇️ 匯出學習紀錄 (JSON)</button><button class="btn red sm" onclick="if(confirm('確定清除所有學習紀錄？'))resetAll()">🗑️ 重設進度</button></div>
+  <div class="row" style="margin-top:12px"><button class="btn blue sm" onclick="speak(LANG==='de'?'Hallo! Wir suchen Lilly zusammen.':'Hello! Let us explore the meadow together.')">🔊 測試發音</button><button class="btn ghost sm" onclick="exportData()">⬇️ 匯出學習紀錄 (JSON)</button><button class="btn red sm" onclick="if(confirm('確定清除所有學習紀錄？'))resetAll()">🗑️ 重設進度</button></div>
   <p class="note">學習紀錄儲存在此瀏覽器的 localStorage，不會上傳。發音使用瀏覽器內建語音（建議使用 Chrome / Edge / Safari）。</p></div>`);
 }
 function exportData(){const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify(S,null,1)],{type:"application/json"}));a.download="pikmin_vocab_record.json";a.click()}
 function resetAll(){try{localStorage.removeItem(KEY)}catch(e){}location.reload()}
+setLang(LANG);
 home();
 </script>
 </body>
