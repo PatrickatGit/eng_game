@@ -272,26 +272,36 @@ function pickVoice(){const v=speechSynthesis.getVoices(),re=new RegExp("^"+(LANG
 if("speechSynthesis" in window){speechSynthesis.onvoiceschanged=pickVoice}
 let curAudio=null;
 function hasVoice(){return "speechSynthesis" in window&&!!voice}
-function speakOnline(t,slow){
+function speakOnline(t,slow,lang){lang=lang||LANG;
   // 備援：電腦沒有該語言的語音時，改用線上語音（需要網路）
   try{curAudio&&curAudio.pause();
-    curAudio=new Audio("https://translate.googleapis.com/translate_tts?ie=UTF-8&client=gtx&tl="+(LANG==="de"?"de":"en")+"&ttsspeed="+((slow||S.slow)?0.3:1)+"&q="+encodeURIComponent(t));
+    curAudio=new Audio("https://translate.googleapis.com/translate_tts?ie=UTF-8&client=gtx&tl="+lang+"&ttsspeed="+((slow||S.slow)?0.3:1)+"&q="+encodeURIComponent(t));
     curAudio.play().catch(()=>voiceWarn());
   }catch(e){voiceWarn()}
 }
-function voiceWarn(){
+function voiceWarn(){const LANG_=LANG;
   if($("#vwarn"))return;
   const d=document.createElement("div");d.id="vwarn";
   d.style.cssText="position:fixed;left:10px;right:10px;bottom:10px;z-index:20;background:#fff3b0;border:3px solid #e0a800;border-radius:16px;padding:12px 16px;font-weight:700;box-shadow:0 6px 20px rgba(0,0,0,.25)";
   d.innerHTML=`🔇 找不到${LANG==="de"?"德語":"英語"}語音，且無法連上線上語音。<br><small>Windows：設定 → 時間與語言 → 語音 → 新增語音 → 安裝「${LANG==="de"?"德文 (德國)":"英文 (美國)"}」，裝好後重新開啟瀏覽器；或連上網路再試一次。</small> <button class="btn sm" onclick="this.parentNode.remove()">知道了</button>`;
   document.body.appendChild(d);
 }
-function speak(t,slow){
-  if("speechSynthesis" in window){speechSynthesis.cancel();pickVoice()}
+function findVoice(lang){
+  const v=(window.speechSynthesis?speechSynthesis.getVoices():[]).filter(x=>x.lang.replace("_","-").toLowerCase().startsWith(lang));
+  const full=lang==="de"?"de-de":"en-us";
+  const score=x=>(x.lang.replace("_","-").toLowerCase()===full?4:0)+(/natural|neural|google/i.test(x.name)?2:0)+(x.localService?1:0);
+  return v.sort((a,b)=>score(b)-score(a))[0]||null;
+}
+function speak(t,slow,lang){
+  lang=lang||LANG;
   if(curAudio){curAudio.pause()}
-  if(!hasVoice()){return speakOnline(t,slow)}
-  const u=new SpeechSynthesisUtterance(t);u.lang=LANG==="de"?"de-DE":"en-US";u.voice=voice;
-  u.rate=(slow||S.slow)?0.6:0.92;u.onerror=()=>speakOnline(t,slow);speechSynthesis.speak(u);
+  if(!("speechSynthesis" in window)){return speakOnline(t,slow,lang)}
+  const vo=findVoice(lang);
+  if(!vo&&speechSynthesis.getVoices().length){return speakOnline(t,slow,lang)}
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(t);u.lang=lang==="de"?"de-DE":"en-US";if(vo)u.voice=vo;
+  u.rate=(slow||S.slow)?0.6:0.92;u.onerror=e=>{if(e.error!=="canceled"&&e.error!=="interrupted")speakOnline(t,slow,lang)};
+  setTimeout(()=>speechSynthesis.speak(u),60);
 }
 let actx;
 function tone(f,d,type="sine",delay=0,vol=.15){
@@ -559,7 +569,7 @@ function settings(){
   <div class="card"><div class="row"><label><input type="checkbox" ${S.slow?"checked":""} onchange="S.slow=this.checked;save()"> 預設慢速發音</label></div>
   <div class="row" style="margin-top:8px"><label><input type="checkbox" ${S.mute?"checked":""} onchange="S.mute=this.checked;save()"> 關閉音效</label></div>
   <div class="row" style="margin-top:8px"><label><input type="checkbox" ${S.teacher?"checked":""} onchange="S.teacher=this.checked;save()"> 老師模式（解鎖全部關卡）</label></div>
-  <div class="row" style="margin-top:12px"><button class="btn blue sm" onclick="speak(LANG==='de'?'Hallo! Wir suchen Lilly zusammen.':'Hello! Let us explore the meadow together.')">🔊 測試發音</button><button class="btn ghost sm" onclick="exportData()">⬇️ 匯出學習紀錄 (JSON)</button><button class="btn red sm" onclick="if(confirm('確定清除所有學習紀錄？'))resetAll()">🗑️ 重設進度</button></div>
+  <div class="row" style="margin-top:12px"><button class="btn blue sm" onclick="speak('Hello! Let us explore the meadow together.',0,'en')">🔊 測試英語</button><button class="btn blue sm" onclick="speak('Hallo! Wir suchen Lilly zusammen.',0,'de')">🔊 測試德語</button><button class="btn ghost sm" onclick="exportData()">⬇️ 匯出學習紀錄 (JSON)</button><button class="btn red sm" onclick="if(confirm('確定清除所有學習紀錄？'))resetAll()">🗑️ 重設進度</button></div>
   <p class="note">學習紀錄儲存在此瀏覽器的 localStorage，不會上傳。發音優先使用電腦內建語音（Chrome / Edge / Safari）；若沒有該語言語音，會改用線上語音（需要網路，此時被朗讀的單字文字會傳到線上語音服務）。</p></div>`);
 }
 function exportData(){const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify(S,null,1)],{type:"application/json"}));a.download="pikmin_vocab_record.json";a.click()}
